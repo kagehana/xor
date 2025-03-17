@@ -77,9 +77,11 @@ end
 -- hex to bytes
 local function tobytes(hex)
     local bytes = {}
+    
     for h in hex:gmatch('%S+') do
         table.insert(bytes, tonumber(h, 16))
     end
+    
     return bytes
 end
 
@@ -87,9 +89,11 @@ end
 -- key generation
 local function key(length)
     local parts = {}
+    
     for i = 1, length do
         parts[i] = string.format('%02X', math.random(0, 255))
     end
+    
     return table.concat(parts, ' ')
 end
 
