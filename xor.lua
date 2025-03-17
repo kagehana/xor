@@ -99,6 +99,7 @@ local function stamp()
     return os.clock() * 1e6
 end
 
+
 -- main function
 local function go()
     io.write('encrypt or decrypt? (e/d): ')
