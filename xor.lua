@@ -14,16 +14,21 @@ local xort = {}
 
 for i = 0, 255 do
     xort[i] = {}
+
     for j = 0, 255 do
         local result, bit = 0, 1
-        local a, b = i, j
+        local a,      b   = i, j
+
         while a > 0 or b > 0 do
             local abit, bbit = a % 2, b % 2
+            
             if abit ~= bbit then
                 result = result + bit
             end
+
             a, b, bit = floor(a / 2), floor(b / 2), bit * 2
         end
+        
         xort[i][j] = result
     end
 end
@@ -33,10 +38,13 @@ end
 local function xor(str, key)
     local klen = #key
     local enc = {}
+
     for i = 1, #str do
         local index = (i - 1) % klen + 1
+
         enc[i] = char(xort[byte(str, i)][key[index]])
     end
+
     return table.concat(enc)
 end
 
