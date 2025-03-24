@@ -77,11 +77,11 @@ end
 -- hex to bytes
 local function tobytes(hex)
     local bytes = {}
-    
+
     for h in hex:gmatch('%S+') do
         table.insert(bytes, tonumber(h, 16))
     end
-    
+
     return bytes
 end
 
@@ -89,11 +89,11 @@ end
 -- key generation
 local function key(length)
     local parts = {}
-    
+
     for i = 1, length do
         parts[i] = string.format('%02X', math.random(0, 255))
     end
-    
+
     return table.concat(parts, ' ')
 end
 
@@ -103,10 +103,31 @@ local function stamp()
     return os.clock() * 1e6
 end
 
+-- for when they're done
+local function finished()
+    io.write('\npress any key to exit ...')
+
+    local _ = io.read()
+end
 
 -- main function
 local function go()
-    io.write('encrypt or decrypt? (e/d): ')
+    local files = {
+        {'encrypted.txt', '[for the most recently encrypted data]'},
+        {'decrypted.txt', '[for the most recently decrypted data]'},
+        {'data.txt',      '[for what data is to be obfuscated]'},
+        {'key.txt',       '[for the most recently generated key, or the key to be used]'}
+    }
+
+    for i, v in ipairs(files) do
+        if not readf(v[1]) then
+            writef(v[1], v[2])
+        end
+    end
+
+    print('if you\'re decrypting xor, please store the necessary key in [key.txt]')
+    io.write('\nencrypt or decrypt? (e/d): ')
+
     local choice = io.read()
 
     print('\n')
@@ -122,7 +143,7 @@ local function go()
 
         local rawk = key(#data)
         writef('key.txt', rawk, false)
-        print('[unique key generated]')
+        print('[unique key generated, check your file]')
 
         local bytes     = tobytes(rawk)
         local begin     = stamp()
@@ -130,13 +151,15 @@ local function go()
         local micros    = stamp() - begin
 
         writef('encrypted.txt', encrypted, true)
-        print(('[encrypted in %.2f µs]'):format(micros))
+        print(('[encrypted in %.2f microseconds]'):format(micros))
+
+        finished()
     elseif choice == 'd' then
         local data = readf('encrypted.txt', true)
         local rawk = readf('key.txt', false)
 
         if not data or not rawk then
-            return error('missing file for encrypted data (encrypted.txt) or the key (key.txt)')
+            return error('missing file for encrypted data [encrypted.txt] or the key [key.txt]')
         end
 
         local bytes     = tobytes(rawk)
@@ -145,7 +168,9 @@ local function go()
         local micros    = stamp() - begin
 
         writef('decrypted.txt', decrypted, true) 
-        print(('[decrypted in %.2f µs]'):format(micros))
+        print(('[decrypted in %.2f microseconds]'):format(micros))
+
+        finished()
     else
         go()
     end
